@@ -62,7 +62,13 @@ def start_app():
 
     # Function to update the display area with text
     def update_display(message):
-        display_label.config(text=message)
+        # Clear the current display
+        for widget in display_frame.winfo_children():
+            widget.destroy()
+
+        # Display the message
+        display_label = tk.Label(display_frame, text=message, font=("Helvetica", 14), bg="white")
+        display_label.pack(pady=20)
 
 
     stats_button = tk.Button(button_frame, text="Statistics", font=("Helvetica", 12), width=15, command=show_statistics)
