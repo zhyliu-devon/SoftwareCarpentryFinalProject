@@ -26,11 +26,12 @@ def start_app():
     button_frame.pack(pady=10)
 
     
-    voice_button = tk.Button(root, text="Voice Input", font=("Helvetica", 12), command=voice_input)
-    voice_button.pack(pady=10)
+    voice_button = tk.Button(button_frame, text="Voice Input", font=("Helvetica", 12), width=15, command=lambda: update_display("Voice input selected"))
+    voice_button.grid(row=0, column=0, padx=10, pady=5)
 
-    image_button = tk.Button(root, text="Image Input", font=("Helvetica", 12), command=image_input)
-    image_button.pack(pady=10)
+    image_button = tk.Button(button_frame, text="Image Input", font=("Helvetica", 12), width=15, command=lambda: update_display("Image input selected"))
+    image_button.grid(row=0, column=1, padx=10, pady=5)
+
 
     # Function to show a random plot
     def show_statistics():
@@ -64,8 +65,8 @@ def start_app():
         display_label.config(text=message)
 
 
-    stats_button = tk.Button(root, text="Statistics", font=("Helvetica", 12), command=show_statistics)
-    stats_button.pack(pady=10)
+    stats_button = tk.Button(button_frame, text="Statistics", font=("Helvetica", 12), width=15, command=show_statistics)
+    stats_button.grid(row=0, column=2, padx=10, pady=5)
 
 
     # Run the application
