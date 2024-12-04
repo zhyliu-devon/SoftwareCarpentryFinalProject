@@ -28,6 +28,12 @@ def start_app():
 def voice_input():
     print("voice input")
 
+def image_input():
+    print("2")
+
+def show_statistics():
+    print("3")
+
 # To test the GUI
 if __name__ == "__main__":
     start_app()
