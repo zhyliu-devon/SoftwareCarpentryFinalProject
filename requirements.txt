@@ -1,0 +1,12 @@
+pandas
+numpy
+matplotlib
+python-dotenv
+requests
+openai
+Pillow
+torch
+transformers
+SpeechRecognition
+tkinter
+matplotlib
