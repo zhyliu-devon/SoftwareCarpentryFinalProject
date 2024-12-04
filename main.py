@@ -10,7 +10,7 @@ def start_app():
     # Create the main application window
     root = tk.Tk()
     root.title("TraLorie")
-    root.geometry("400x300")  # Set window size
+    root.geometry("800x600")  # Set window size
 
     welcome_label = tk.Label(root, text="testing", font=("Helvetica", 14))
     welcome_label.pack(pady=20)
