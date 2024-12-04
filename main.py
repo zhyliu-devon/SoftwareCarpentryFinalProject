@@ -16,6 +16,11 @@ def start_app():
     voice_button = tk.Button(root, text="Voice Input", font=("Helvetica", 12), command=voice_input)
     voice_button.pack(pady=10)
 
+    image_button = tk.Button(root, text="Image Input", font=("Helvetica", 12), command=image_input)
+    image_button.pack(pady=10)
+
+    stats_button = tk.Button(root, text="Statistics", font=("Helvetica", 12), command=show_statistics)
+    stats_button.pack(pady=10)
 
     # Run the application
     root.mainloop()
