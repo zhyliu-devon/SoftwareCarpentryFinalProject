@@ -29,6 +29,27 @@ def convert_calories(food, weight, food_data):
 
 # Add new food entry
 def add_food_entry(food, calories, serving_size, weight_unit, protein, fat, carbohydrates, filepath="data/food_database.csv"):
+    try:
+        food_data = pd.read_csv(filepath)
+    except FileNotFoundError:
+        food_data = pd.DataFrame(columns=["food", "calories", "serving_size", "weight_unit", "protein", "fat", "carbohydrates"])
+    
+    # Check if food exists
+    existing_item = food_data[food_data["food"].str.lower() == food.lower()]
+    if not existing_item.empty:
+        print(f"Food '{food}' exists.")
+        action = input("Replace or cancel? (r/c): ").strip().lower()
+        if action == "c":
+            print("Addition canceled.")
+            return
+        elif action == "r":
+            food_data = food_data[food_data["food"].str.lower() != food.lower()]
+            print(f"Replacing '{food}' entry.")
+        else:
+            print("Invalid input. Canceled.")
+            return
+
+    # Add new entry
     new_data = pd.DataFrame([{
         "food": food,
         "calories": calories,
@@ -38,14 +59,9 @@ def add_food_entry(food, calories, serving_size, weight_unit, protein, fat, carb
         "fat": fat,
         "carbohydrates": carbohydrates
     }])
-    
-    try:
-        food_data = pd.read_csv(filepath)
-    except FileNotFoundError:
-        food_data = pd.DataFrame(columns=["food", "calories", "serving_size", "weight_unit", "protein", "fat", "carbohydrates"])
-    
     updated_data = pd.concat([food_data, new_data], ignore_index=True)
     updated_data.to_csv(filepath, index=False)
+    print(f"'{food}' added successfully.")
 
 # Example usage
 if __name__ == "__main__":
