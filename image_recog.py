@@ -30,6 +30,6 @@ response = client.chat.completions.create(
     ],
     max_tokens=100
 )
-
+print(response.choices[0].message.content) 
 # print response
 print(response)
