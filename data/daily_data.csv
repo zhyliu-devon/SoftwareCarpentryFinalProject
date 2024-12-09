@@ -1,6 +1,5 @@
-date,food,weight,calories,protein,fat,carbohydrates
-2024-12-09,pasta,150,525.0,10.5,1.95,105.0
-2024-12-09,apple,200,104.0,0.6,0.4,28.0
-2024-12-08,pasta,150,525.0,10.5,1.95,105.0
-2024-12-08,apple,200,104.0,0.6,0.4,28.0
-2024-12-08,apple,200,104.0,0.6,0.4,28.0
+date,food,quantity,unit,calories,protein,fat,carbohydrates
+2024-12-09,Pasta,150,gram,525.0,10.5,1.95,105.0
+2024-12-09,Pasta,150,gram,525.0,10.5,1.95,105.0
+2024-12-09,Pasta,1,serving,350.0,7.0,1.3,70.0
+2024-12-09,Pasta,1,lb,1587.57,31.75,5.9,317.51
