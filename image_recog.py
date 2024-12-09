@@ -11,7 +11,7 @@ def encode_image(image_path):
     with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode('utf-8')
 
-image_path = "E:\\Desktop\\SoftwareCarp\\Final\\code\\SoftwareCarpentryFinalProject\\images\\image1.png"
+image_path = "E:\\Desktop\\SoftwareCarp\\Final\\code\\SoftwareCarpentryFinalProject\\images\\image.png"
 
 # get base64 string
 base64_image = encode_image(image_path)
@@ -23,7 +23,7 @@ response = client.chat.completions.create(
         {
             "role": "user",
             "content": [
-                {"type": "text", "text": "What is in this image?"},
+                {"type": "text", "text": "If there are nutrition table available, extract it. Other wise try to estimate the nutrition table for this (Calorie, Protein, Fat, Carbs, Sodium)"},
                 {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{base64_image}"}},
             ],
         }
