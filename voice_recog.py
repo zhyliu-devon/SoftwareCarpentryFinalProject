@@ -1,45 +1,58 @@
-import speech_recognition as sr
+import tkinter as tk
+import pyautogui
+import time
+import ctypes
 
-def find_airpods_microphone():
-    microphones = sr.Microphone.list_microphone_names()
-    print("Mics found:")
-    for i, mic in enumerate(microphones):
-        print(f"{i}: {mic}")
 
-    for i, mic in enumerate(microphones):
-        if "AirPods" in mic:
-            print("AirPods found")
-            return i
+def trigger_voice_typing():
+    """
+    Triggers Windows Voice Typing using the Win+H shortcut.
+    """
+    print("Activating Windows Voice Typing (Win+H)...")
+    pyautogui.hotkey('win', 'h')  # Simulates Win+H key press
 
-    print("No AirPods")
-    return None
 
-def recognize_voice_with_airpods():
-    mic_index = find_airpods_microphone()
-    if mic_index is None:
-        print("No mic")
+def create_gui():
+    """
+    Creates a GUI with a text area that is auto-selected for Windows Voice Typing.
+    """
+    def on_window_open(event):
+        """
+        Focus the text widget and trigger voice typing.
+        """
+        text_area.focus_set()
+        trigger_voice_typing()
+
+    # Initialize the Tkinter GUI
+    root = tk.Tk()
+    root.title("Voice Typing Interface")
+    root.geometry("600x400")  # Set the window size
+
+    # Create a text area
+    text_area = tk.Text(root, wrap=tk.WORD, font=("Arial", 12))
+    text_area.pack(expand=True, fill=tk.BOTH, padx=10, pady=10)
+
+    # Bind the opening of the window to trigger voice typing
+    root.bind("<Map>", on_window_open)
+
+    # Start the GUI main loop
+    root.mainloop()
+
+
+def is_windows_active():
+    """
+    Checks if the system is running Windows.
+    """
+    return ctypes.windll.kernel32.GetVersion() < 0x80000000
+
+
+def main():
+    if not is_windows_active():
+        print("This script only works on Windows.")
         return
 
-    recognizer = sr.Recognizer()
-    with sr.Microphone(device_index=mic_index) as source:
-        print("Listening...")
-        try:
-            recognizer.adjust_for_ambient_noise(source)
-            audio = recognizer.listen(source, timeout=5)
-            print("Processing...")
-            text = recognizer.recognize_google(audio)
-            print(f"You said: {text}")
-            return text
-        except sr.UnknownValueError:
-            print("Didn't get")
-            return None
-        except sr.RequestError:
-            print("Error")
-            return None
-        except sr.WaitTimeoutError:
-            print("No input")
-            return None
+    create_gui()
+
 
 if __name__ == "__main__":
-    print("Starting...")
-    recognize_voice_with_airpods()
+    main()
