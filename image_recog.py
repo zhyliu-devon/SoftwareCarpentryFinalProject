@@ -1,29 +1,35 @@
-import torch
-from transformers import AutoFeatureExtractor, AutoModelForImageClassification
-from PIL import Image
+import base64
+import os
+from openai import OpenAI
+from dotenv import load_dotenv
 
-# Load the feature extractor and model
-extractor = AutoFeatureExtractor.from_pretrained("Kaludi/Food-Classification")
-model = AutoModelForImageClassification.from_pretrained("Kaludi/Food-Classification")
+load_dotenv()
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-def recognize_food(image_path):
-    # Open and preprocess the image
-    image = Image.open(image_path).convert("RGB")
-    inputs = extractor(images=image, return_tensors="pt")
+# encode image
+def encode_image(image_path):
+    with open(image_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode('utf-8')
 
-    # Perform inference
-    with torch.no_grad():
-        outputs = model(**inputs)
-    
-    # Get the predicted class
-    logits = outputs.logits
-    predicted_class_idx = logits.argmax(-1).item()
-    predicted_class = model.config.id2label[predicted_class_idx]
-    
-    return predicted_class
+image_path = "E:\\Desktop\\SoftwareCarp\\Final\\code\\SoftwareCarpentryFinalProject\\images\\image1.png"
 
-# Test the function
-if __name__ == "__main__":
-    image_path = "E:\\Desktop\\SoftwareCarp\\Final\\code\\SoftwareCarpentryFinalProject\\images\\image1.png"  # Replace with your image path
-    food_item = recognize_food(image_path)
-    print(f"Recognized food item: {food_item}")
+# get base64 string
+base64_image = encode_image(image_path)
+
+# send request
+response = client.chat.completions.create(
+    model="gpt-4o-mini",
+    messages=[
+        {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": "What is in this image?"},
+                {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{base64_image}"}},
+            ],
+        }
+    ],
+    max_tokens=100
+)
+
+# print response
+print(response)
