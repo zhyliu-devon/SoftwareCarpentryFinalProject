@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from voice_recog import trigger_voice_typing
 from image_recog import encode_image
-from data_handler import add_food_entry, ensure_database_exists
-from llm import add_food_from_prompt
+from data_handler import add_food_entry
 import pandas as pd
+from llm import add_food_from_prompt
 
 def start_app():
     # Create the main application window
@@ -28,15 +28,6 @@ def start_app():
     button_frame.pack(pady=10)
 
     
-    # voice_button = tk.Button(button_frame, text="Voice Input", font=("Helvetica", 12), width=15, command=handle_voice_input)
-    # voice_button.grid(row=0, column=0, padx=10, pady=5)
-
-    # image_button = tk.Button(button_frame, text="Image Input", font=("Helvetica", 12), width=15, command=lambda: update_display("Image input selected"))
-    # image_button.grid(row=0, column=1, padx=10, pady=5)
-    # # tk.Button(button_frame, text="Voice Input", font=("Helvetica", 12), command=handle_voice_input).grid(row=0, column=0, padx=10, pady=5)
-    # # tk.Button(button_frame, text="Image Input", font=("Helvetica", 12), command=handle_image_input).grid(row=0, column=1, padx=10, pady=5)
-    # # tk.Button(button_frame, text="Text Input", font=("Helvetica", 12), command=handle_text_input).grid(row=0, column=2, padx=10, pady=5)
-    # # tk.Button(button_frame, text="Statistics", font=("Helvetica", 12), command=show_statistics).grid(row=0, column=3, padx=10, pady=5)
 
     # Function to show a random plot
     def show_statistics():
@@ -70,26 +61,58 @@ def start_app():
         display_label.pack(pady=20)
 
 
-    # stats_button = tk.Button(button_frame, text="Statistics", font=("Helvetica", 12), width=15, command=show_statistics)
-    # stats_button.grid(row=0, column=2, padx=10, pady=5)
 
-
-    # Run the application
-    root.mainloop()
 
     def handle_voice_input():
         update_display("Listening for voice input...")
         trigger_voice_typing()
 
-  
+    # Function to handle image input
+    def handle_image_input():
+        image_path = filedialog.askopenfilename(title="Select an Image", filetypes=[("Image Files", "*.jpg;*.jpeg;*.png")])
+        if image_path:
+            update_display(f"Processing image: {image_path}")
+            try:
+                encoded_image = encode_image(image_path)
+                update_display(f"Image processed successfully: {encoded_image[:50]}...")
+            except Exception as e:
+                update_display(f"Error processing image: {e}", bg_color="lightcoral")
+
+    # Function to handle text input
+    def handle_text_input():
+        input_window = tk.Toplevel(root)
+        input_window.title("Enter Food Description")
+        input_window.geometry("400x200")
+
+        tk.Label(input_window, text="Describe the food item:", font=("Helvetica", 12)).pack(pady=10)
+        prompt_entry = tk.Entry(input_window, width=50, font=("Helvetica", 12))
+        prompt_entry.pack(pady=5)
+
+        def process_text_input():
+            prompt = prompt_entry.get()
+            if prompt:
+                update_display(f"Processing: {prompt}")
+                try:
+                    add_food_from_prompt(prompt)
+                    update_display(f"Food entry added successfully: {prompt}")
+                except Exception as e:
+                    update_display(f"Error: {e}", bg_color="lightcoral")
+            input_window.destroy()
+
+        tk.Button(input_window, text="Submit", font=("Helvetica", 12), command=process_text_input).pack(pady=10)
+        
+
     voice_button = tk.Button(button_frame, text="Voice Input", font=("Helvetica", 12), width=15, command=handle_voice_input)
     voice_button.grid(row=0, column=0, padx=10, pady=5)
 
-    # image_button = tk.Button(button_frame, text="Image Input", font=("Helvetica", 12), width=15, command=handle_image_input)
-    # image_button.grid(row=0, column=1, padx=10, pady=5)
+    image_button = tk.Button(button_frame, text="Image Input", font=("Helvetica", 12), width=15, command=handle_image_input)
+    image_button.grid(row=0, column=1, padx=10, pady=5)
 
-    # stats_button = tk.Button(button_frame, text="Statistics", font=("Helvetica", 12), width=15, command=show_statistics)
-    # stats_button.grid(row=0, column=2, padx=10, pady=5)
+    stats_button = tk.Button(button_frame, text="Statistics", font=("Helvetica", 12), width=15, command=show_statistics)
+    stats_button.grid(row=0, column=2, padx=10, pady=5)
+
+    # Run the application
+    root.mainloop()
 
 # To test the GUI
 if __name__ == "__main__":
