@@ -12,7 +12,7 @@ def start_app():
     # Create the main application window
     root = tk.Tk()
     root.title("TraLorie")
-    root.geometry("800x600")  # Set window size
+    root.geometry("1500x1200")  # Set window size
 
     welcome_label = tk.Label(root, text="testing", font=("Helvetica", 14))
     welcome_label.pack(pady=20)
@@ -61,8 +61,6 @@ def start_app():
         display_label.pack(pady=20)
 
 
-
-
     def handle_voice_input():
         update_display("Listening for voice input...")
         trigger_voice_typing()
@@ -78,35 +76,15 @@ def start_app():
             except Exception as e:
                 update_display(f"Error processing image: {e}", bg_color="lightcoral")
 
-    # Function to handle text input
-    def handle_text_input():
-        input_window = tk.Toplevel(root)
-        input_window.title("Enter Food Description")
-        input_window.geometry("400x200")
 
-        tk.Label(input_window, text="Describe the food item:", font=("Helvetica", 12)).pack(pady=10)
-        prompt_entry = tk.Entry(input_window, width=50, font=("Helvetica", 12))
-        prompt_entry.pack(pady=5)
-
-        def process_text_input():
-            prompt = prompt_entry.get()
-            if prompt:
-                update_display(f"Processing: {prompt}")
-                try:
-                    add_food_from_prompt(prompt)
-                    update_display(f"Food entry added successfully: {prompt}")
-                except Exception as e:
-                    update_display(f"Error: {e}", bg_color="lightcoral")
-            input_window.destroy()
-
-        tk.Button(input_window, text="Submit", font=("Helvetica", 12), command=process_text_input).pack(pady=10)
-        
 
     voice_button = tk.Button(button_frame, text="Voice Input", font=("Helvetica", 12), width=15, command=handle_voice_input)
     voice_button.grid(row=0, column=0, padx=10, pady=5)
 
     image_button = tk.Button(button_frame, text="Image Input", font=("Helvetica", 12), width=15, command=handle_image_input)
     image_button.grid(row=0, column=1, padx=10, pady=5)
+
+
 
     stats_button = tk.Button(button_frame, text="Statistics", font=("Helvetica", 12), width=15, command=show_statistics)
     stats_button.grid(row=0, column=2, padx=10, pady=5)
