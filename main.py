@@ -3,7 +3,7 @@ from tkinter import filedialog, messagebox
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from voice_recog import main as voice_recog_main
-from image_recog import encode_image
+from image_recog import process_image
 from data_handler import add_food_entry
 import pandas as pd
 from llm import add_food_from_prompt
@@ -66,38 +66,17 @@ def start_app():
         voice_recog_main()
 
     # Function to handle image input
+    # Function to handle image input
     def handle_image_input():
         image_path = filedialog.askopenfilename(title="Select an Image", filetypes=[("Image Files", "*.jpg;*.jpeg;*.png")])
         if image_path:
-            update_display(f"Processing image: {image_path}")
+
             try:
-                encoded_image = encode_image(image_path)
-                update_display(f"Image processed successfully: {encoded_image[:50]}...")
+                encoded_image = process_image(image_path)
+                update_display(f"Image processed successfully:\n{encoded_image[:100]}...\n(Truncated Base64 String)")
             except Exception as e:
                 update_display(f"Error processing image: {e}", bg_color="lightcoral")
 
-    # # Function to handle text input
-    # def handle_text_input():
-    #     input_window = tk.Toplevel(root)
-    #     input_window.title("Enter Food Description")
-    #     input_window.geometry("400x200")
-
-    #     tk.Label(input_window, text="Describe the food item:", font=("Helvetica", 12)).pack(pady=10)
-    #     prompt_entry = tk.Entry(input_window, width=50, font=("Helvetica", 12))
-    #     prompt_entry.pack(pady=5)
-
-    #     def process_text_input():
-    #         prompt = prompt_entry.get()
-    #         if prompt:
-    #             update_display(f"Processing: {prompt}")
-    #             try:
-    #                 add_food_from_prompt(prompt)
-    #                 update_display(f"Food entry added successfully: {prompt}")
-    #             except Exception as e:
-    #                 update_display(f"Error: {e}", bg_color="lightcoral")
-    #         input_window.destroy()
-
-    #     tk.Button(input_window, text="Submit", font=("Helvetica", 12), command=process_text_input).pack(pady=10)
     
     def handle_text_input(event=None):
         user_text = text_input.get()
