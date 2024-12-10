@@ -1,10 +1,12 @@
-import gui
-import data_handler
-
 import tkinter as tk
-import numpy as np
+from tkinter import filedialog, messagebox
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from voice_recog import trigger_voice_typing
+from image_recog import encode_image
+from data_handler import add_food_entry, ensure_database_exists
+from llm import add_food_from_prompt
+import pandas as pd
 
 def start_app():
     # Create the main application window
@@ -26,39 +28,26 @@ def start_app():
     button_frame.pack(pady=10)
 
     
-    voice_button = tk.Button(button_frame, text="Voice Input", font=("Helvetica", 12), width=15, command=lambda: update_display("Voice input selected"))
-    voice_button.grid(row=0, column=0, padx=10, pady=5)
-
-    image_button = tk.Button(button_frame, text="Image Input", font=("Helvetica", 12), width=15, command=lambda: update_display("Image input selected"))
-    image_button.grid(row=0, column=1, padx=10, pady=5)
-
-
     # Function to show a random plot
     def show_statistics():
-        # Clear the current display
         for widget in display_frame.winfo_children():
             widget.destroy()
 
-        # Generate random data for the plot
-        x = np.linspace(0, 10, 100)
-        y = np.sin(x) + np.random.normal(0, 0.1, len(x))
-
-        # Create the plot
-        fig, ax = plt.subplots(figsize=(5, 3))
-        ax.plot(x, y, label="Random Data")
-        ax.set_title("Random Calorie Statistics")
-        ax.set_xlabel("Time")
-        ax.set_ylabel("Calories")
-        ax.legend()
-
-        # Embed the plot in the Tkinter GUI
-        canvas = FigureCanvasTkAgg(fig, master=display_frame)
-        canvas_widget = canvas.get_tk_widget()
-        canvas_widget.pack(fill=tk.BOTH, expand=True)
-
-        # Draw the canvas
-        canvas.draw()
-
+        try:
+            data = pd.read_csv("data/food_database.csv")
+            if not data.empty:
+                plt.figure(figsize=(8, 4))
+                data.plot(kind="bar", x="food", y="calories", legend=False, ax=plt.gca())
+                plt.title("Calories by Food")
+                plt.xlabel("Food")
+                plt.ylabel("Calories")
+                canvas = FigureCanvasTkAgg(plt.gcf(), master=display_frame)
+                canvas.get_tk_widget().pack()
+                canvas.draw()
+            else:
+                update_display("No data available for visualization!", bg_color="lightyellow")
+        except Exception as e:
+            update_display(f"Error displaying statistics: {e}", bg_color="lightcoral")
 
     # Function to update the display area with text
     def update_display(message):
@@ -71,21 +60,14 @@ def start_app():
         display_label.pack(pady=20)
 
 
-    stats_button = tk.Button(button_frame, text="Statistics", font=("Helvetica", 12), width=15, command=show_statistics)
-    stats_button.grid(row=0, column=2, padx=10, pady=5)
+    # stats_button = tk.Button(button_frame, text="Statistics", font=("Helvetica", 12), width=15, command=show_statistics)
+    # stats_button.grid(row=0, column=2, padx=10, pady=5)
 
 
     # Run the application
     root.mainloop()
 
-def voice_input():
-    print("voice input")
 
-def image_input():
-    print("2")
-
-def show_statistics():
-    print("3")
 
 # To test the GUI
 if __name__ == "__main__":
