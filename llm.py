@@ -9,14 +9,26 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 system_messages = {
     "Estimate": (
-        "You are an assistant that extimate structured data from prompts. "
-        "Given a food, estimate its nutrition based on your feeling "
-        "Do not estimate if you see value given in the description"
-        "Output a dictionary with fields:"
+        "You are an assistant that estimates nutritional data based on prompts. "
+        "If the description provides values, do not estimate. "
+        "Output a dictionary with the following fields: "
         "'food', 'calories', 'serving_size', 'weight_unit', 'protein', 'fat', 'carbohydrates'. "
-        "Ensure numeric values are properly parsed."
+        "Ensure all numeric values are properly parsed and formatted."
     ),
+    "CheckReqType": (
+        "Identify the user's intent from the following options: "
+        "'Estimate' - The user is asking for nutrition estimates of a food. "
+        "'SavingDataset' - The user provides nutritional data and wants to save it to a dataset. "
+        "'SavingDaily' - The user wants to add something to their daily diet. "
+        "'SavingDataset&SavingDaily' - The user wants to save the data to both the dataset and daily diet. "
+        "Reply only with the option in single quotes."
+    ),
+    "Extract Food Name": (
+        "Identify the food mentioned by the user. "
+        "Respond only with the food name, capitalized."
+    )
 }
+
 def process_prompt_with_llm(prompt, system_message):
     """
     Send the prompt to an LLM to extract structured food data.
