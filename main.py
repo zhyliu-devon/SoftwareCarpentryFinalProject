@@ -120,11 +120,6 @@ def start_app():
         except Exception as e:
             tk.Label(stats_frame, text=f"An error occurred: {e}", font=("Helvetica", 14), fg="red").pack()
 
-    # Function to handle voice input
-    def handle_voice_input():
-        add_chat_bubble("Listening for voice input...", is_user=True)
-        voice_recog_main()
-        add_chat_bubble("Voice input processed.", is_user=False)
 
     # Function to handle image input
     def handle_image_input():
@@ -146,7 +141,7 @@ def start_app():
         if user_text:
             add_chat_bubble(user_text, is_user=True)
             try:
-                response = process_prompt_with_llm(user_text)  # Call the process_prompt_with_llm function
+                response = process_prompt_with_llm(user_text, system_messages["Estimate"])  # Call the process_prompt_with_llm function
                 if response:
                     add_chat_bubble(f"Processed data:{response}", is_user=False)
                 else:
@@ -170,15 +165,6 @@ def start_app():
     # Button frame
     button_frame = tk.Frame(root)
     button_frame.pack(pady=10)
-
-    voice_button = tk.Button(
-        button_frame,
-        text="Voice Input",
-        font=("Helvetica", 12),
-        width=15,
-        command=handle_voice_input,
-    )
-    voice_button.grid(row=0, column=0, padx=10, pady=5)
 
     image_button = tk.Button(
         button_frame,
