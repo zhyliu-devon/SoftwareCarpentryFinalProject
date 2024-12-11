@@ -146,7 +146,8 @@ def start_app():
                 response = process_prompt_with_llm(user_text, system_messages["Estimate"])
                 if "SavingDataset" in request_type:
 
-                    response = add_food_from_prompt(response) #Need a little change on yes or no
+                    _ = add_food_from_prompt(response) #Need a little change on yes or no
+                    response = "Added the following information to the dataset: "+response
                 if "SavingDaily" in request_type:
                     food_name = process_prompt_with_llm(user_text, system_messages["Extract Food Name"])
                     #nutrition_table = extract_from_data_base(food_name)
