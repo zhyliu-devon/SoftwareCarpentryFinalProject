@@ -64,6 +64,61 @@ def start_app():
                 fg=text_color,
             )
             text_label.pack()
+    
+    def show_statistics():
+        # Temporarily overlay statistics on the chat
+        stats_frame = tk.Frame(chat_frame, bg="white", relief=tk.RAISED, bd=2)
+        stats_frame.place(relx=0, rely=0, relwidth=1, relheight=1)
+
+        file_path = "data/daily_data.csv"  # Path to the CSV file
+
+        try:
+            # Load data from the CSV file
+            data = pd.read_csv(file_path)
+
+            # Generate a grouped bar chart
+            from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+            import matplotlib.pyplot as plt
+
+            fig, ax = plt.subplots(figsize=(10, 8))
+
+            x = range(len(data))  # Number of rows
+            bar_width = 0.2
+
+            nutrients = ["calories", "protein", "fat", "carbohydrates"]
+            colors = ["blue", "green", "red", "orange"]
+
+            for i, nutrient in enumerate(nutrients):
+                ax.bar(
+                    [pos + i * bar_width for pos in x],
+                    data[nutrient],
+                    bar_width,
+                    label=nutrient.capitalize(),
+                    color=colors[i],
+                )
+
+            ax.set_xticks([pos + (len(nutrients) - 1) * bar_width / 2 for pos in x])
+            ax.set_xticklabels(data["food"], rotation=45, ha="right")
+
+            ax.set_title("Daily Nutritional Intake by Food")
+            ax.set_xlabel("Food")
+            ax.set_ylabel("Amount")
+            ax.legend(title="Nutrients")
+
+            # Embed the plot into the Tkinter frame
+            canvas = FigureCanvasTkAgg(fig, master=stats_frame)
+            canvas.get_tk_widget().place(relx=0.5, rely=0.5, anchor='center', width=1200, height=960)
+            canvas.draw()
+
+
+            # Add a back button
+            back_button = tk.Button(stats_frame, text="Back to Chat", font=("Helvetica", 12), command=stats_frame.destroy)
+            back_button.place(relx=0.01, rely=0.01, anchor='nw')
+
+        except FileNotFoundError:
+            tk.Label(stats_frame, text="The file 'daily_data.csv' was not found.", font=("Helvetica", 14), fg="red").pack()
+        except Exception as e:
+            tk.Label(stats_frame, text=f"An error occurred: {e}", font=("Helvetica", 14), fg="red").pack()
 
     # Function to handle voice input
     def handle_voice_input():
@@ -133,6 +188,15 @@ def start_app():
         command=handle_image_input,
     )
     image_button.grid(row=0, column=1, padx=10, pady=5)
+
+    stats_button = tk.Button(
+        button_frame,
+        text="Show Statistics",
+        font=("Helvetica", 12),
+        width=15,
+        command=show_statistics,
+    )
+    stats_button.grid(row=0, column=2, padx=10, pady=5)
 
     # Run the application
     root.mainloop()
