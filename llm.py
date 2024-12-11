@@ -2,7 +2,7 @@ import os
 from openai import OpenAI
 from dotenv import load_dotenv
 import data_handler
-
+import json
 # Load environment variables
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -12,7 +12,7 @@ system_messages = {
         "You are an assistant that extimate structured data from prompts. "
         "Given a food, estimate its nutrition based on your feeling "
         "Do not estimate if you see value given in the description"
-        "Output a dictionary with fields:"
+        "Output a dictionary with fields (use double quote for property name):"
         "'food', 'calories', 'serving_size', 'weight_unit', 'protein', 'fat', 'carbohydrates'. "
         "Ensure numeric values are properly parsed."
     ),
@@ -59,10 +59,13 @@ def add_food_from_prompt(prompt, filepath="data/food_database.csv"):
     Process natural language prompt, extract data, and add to database.
     """
     food_data = process_prompt_with_llm(prompt, system_messages["Estimate"])
+    print("return type of process_prompt_with_llm(prompt, system_messages)")
+    print(food_data)
     if not food_data:
         print("Failed to process prompt.")
         return
 
+    food_data = json.loads(food_data)
     # Add the extracted data to the database
     try:
         data_handler.add_food_entry(
