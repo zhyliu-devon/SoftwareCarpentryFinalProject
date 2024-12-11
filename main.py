@@ -5,7 +5,7 @@ from voice_recog import main as voice_recog_main
 from image_recog import process_image
 from data_handler import add_food_entry
 import pandas as pd
-from llm import add_food_from_prompt
+from llm import process_prompt_with_llm
 
 
 def start_app():
@@ -13,7 +13,9 @@ def start_app():
     root = tk.Tk()
     root.title("TraLorie")
     root.geometry("1500x1200")  # Set window size
-
+    # Main display area
+    welcome_label = tk.Label(root, text="Welcome to TraLorie", font=("Helvetica", 14))
+    welcome_label.pack(pady=20)
     # Scrollable display area for chat-style interaction
     chat_frame = tk.Frame(root)
     chat_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
@@ -55,7 +57,7 @@ def start_app():
             text_label = tk.Label(
                 bubble_frame,
                 text=message,
-                wraplength=1500,
+                wraplength=1480,
                 justify="right" if is_user else "left",
                 font=("Helvetica", 14),
                 bg=bubble_color,
@@ -83,18 +85,20 @@ def start_app():
             except Exception as e:
                 add_chat_bubble(f"Error processing image: {e}", is_user=False)
 
-    # Function to handle text input
+# Function to handle text input
     def handle_text_input(event=None):
         user_text = text_input.get()
         if user_text:
             add_chat_bubble(user_text, is_user=True)
             try:
-                response = add_food_from_prompt(user_text)
-                add_chat_bubble(f"Processed text:\n{response}", is_user=False)
+                response = process_prompt_with_llm(user_text)  # Call the process_prompt_with_llm function
+                if response:
+                    add_chat_bubble(f"Processed data:{response}", is_user=False)
+                else:
+                    add_chat_bubble("Failed to process the prompt.", is_user=False)
             except Exception as e:
                 add_chat_bubble(f"Error: {e}", is_user=False)
             text_input.delete(0, tk.END)
-
     # Input frame
     input_frame = tk.Frame(root)
     input_frame.pack(fill=tk.X, padx=10, pady=10)
