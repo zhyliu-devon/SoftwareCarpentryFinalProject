@@ -6,6 +6,9 @@ from image_recog import process_image
 from data_handler import add_food_entry
 import pandas as pd
 from llm import process_prompt_with_llm, system_messages, add_food_from_prompt
+import os
+import json
+import pyautogui
 
 
 def start_app():
@@ -82,6 +85,35 @@ def start_app():
             print(f"An error occurred while accessing the database: {e}")
             return None
         
+    def add_food_to_daily(response, daily_data_filepath="data/daily_data.csv"):
+
+        try:
+            # Load or initialize daily_data.csv
+            if not os.path.exists(daily_data_filepath):
+                daily_data = pd.DataFrame(columns=["date", "food", "quantity", "unit", "calories", "protein", "fat", "carbohydrates"])
+            else:
+                daily_data = pd.read_csv(daily_data_filepath)
+            response = json.loads(response)
+            # Append the new entry
+            new_entry = {
+                "date": response.get("date", pd.Timestamp.now().strftime('%Y-%m-%d')),
+                "food": response.get("food", "Unknown"),
+                "quantity": response.get("quantity", 1),
+                "unit": response.get("unit", "serving"),
+                "calories": response.get("calories", 0),
+                "protein": response.get("protein", 0),
+                "fat": response.get("fat", 0),
+                "carbohydrates": response.get("carbohydrates", 0),
+            }
+
+            daily_data = pd.concat([daily_data, pd.DataFrame([new_entry])], ignore_index=True)
+            daily_data.to_csv(daily_data_filepath, index=False)
+
+            return f"Added {new_entry['food']} to daily data."
+
+        except Exception as e:
+            return f"Error saving data: {e}"
+        
     def show_statistics():
         # Temporarily overlay statistics on the chat
         stats_frame = tk.Frame(chat_frame, bg="white", relief=tk.RAISED, bd=2)
@@ -137,6 +169,9 @@ def start_app():
         except Exception as e:
             tk.Label(stats_frame, text=f"An error occurred: {e}", font=("Helvetica", 14), fg="red").pack()
 
+    def handle_voice_input():
+        print("Activating Windows Voice Typing (Win+H)...")
+        pyautogui.hotkey('win', 'h') 
 
     # Function to handle image input
     def handle_image_input():
@@ -148,38 +183,36 @@ def start_app():
             add_chat_bubble(image_path, is_user=True, image=image_path)
             try:
                 response = process_image(image_path)
-                add_chat_bubble(response[:500], is_user=False)
+                add_chat_bubble(response, is_user=False)
+                add_chat_bubble("What do you want to do with this figure?", is_user=False)
+                user_follow_up = text_input.get()
+                handle_text_input(user_follow_up + str(response))
             except Exception as e:
                 add_chat_bubble(f"Error processing image: {e}", is_user=False)
 
 # Function to handle text input
     def handle_text_input(event=None):
-        user_text = text_input.get()
+        user_text = text_input.get() 
         if user_text:
             add_chat_bubble(user_text, is_user=True)
             try:
+                user_text = user_text + str(event)
                 request_type = process_prompt_with_llm(user_text, system_messages["CheckReqType"])
                 print(request_type)
                 food_name = process_prompt_with_llm(user_text, system_messages["Extract Food Name"])
                 nutrition_table = extract_from_data_base(food_name)
                 if nutrition_table is not None:
                     user_text = user_text + "Nutrition Table from data base (Don't use if there are nutrition value before it):" + str(nutrition_table)
-                    print(user_text)
+                    
                 response = process_prompt_with_llm(user_text, system_messages["Estimate"])
                 if "SavingDataset" in request_type:
 
                     _ = add_food_from_prompt(response) #Need a little change on yes or no
                     response = "Added the following information to the dataset: "+response
-                # if "SavingDaily" in request_type:
+                if "SavingDaily" in request_type:
 
-                #     #For testing
-                #     # response_test = "nutrition_table = extract_from_data_base(food_name)"
+                        response = add_food_to_daily(response)
 
-                    
-
-
-                #     response = add_food_to_daily(response)
-                    # response = response_test + "nutrition_table = extract_from_data_base(food_name)" + response
 
                 if response:
                     add_chat_bubble(response, is_user=False)
@@ -204,6 +237,15 @@ def start_app():
     # Button frame
     button_frame = tk.Frame(root)
     button_frame.pack(pady=10)
+
+    voice_button = tk.Button(
+        button_frame,
+        text="Voice Input",
+        font=("Helvetica", 12),
+        width=15,
+        command=handle_voice_input,
+    )
+    voice_button.grid(row=0, column=0, padx=10, pady=5)
 
     image_button = tk.Button(
         button_frame,
