@@ -7,17 +7,25 @@ import data_handler
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-def process_prompt_with_llm(prompt):
-    """
-    Send the prompt to an LLM to extract structured food data.
-    """
-    # System instructions for the LLM
-    system_message = (
+system_messages = {
+    "Extract": (
         "You are an assistant that extracts structured data from prompts. "
         "Given a natural language description, output a dictionary with fields: "
         "'food', 'calories', 'serving_size', 'weight_unit', 'protein', 'fat', 'carbohydrates'. "
         "Ensure numeric values are properly parsed."
-    )
+    ),
+    "Estimate": (
+        "You are an assistant that extimate structured data from prompts. "
+        "Given a food, estimate its nutrition based on your feeling and output a dictionary with fields: "
+        "'food', 'calories', 'serving_size', 'weight_unit', 'protein', 'fat', 'carbohydrates'. "
+        "Ensure numeric values are properly parsed."
+    ),
+}
+def process_prompt_with_llm(prompt, system_message):
+    """
+    Send the prompt to an LLM to extract structured food data.
+    """
+    # System instructions for the LLM
 
     # Send prompt to the LLM using new API structure
     try:
@@ -32,7 +40,7 @@ def process_prompt_with_llm(prompt):
         
         # Extract response content
         result = response.choices[0].message.content
-        return eval(result)  # Convert string response to dictionary
+        return result  # Convert string response to dictionary
     except Exception as e:
         print("Error in LLM processing:", e)
         return None
