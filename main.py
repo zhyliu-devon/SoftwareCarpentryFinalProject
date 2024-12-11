@@ -65,6 +65,23 @@ def start_app():
             )
             text_label.pack()
     
+    def extract_from_data_base(food_name, database_filepath="data/food_database.csv"):
+        try:
+            food_database = pd.read_csv(database_filepath)
+            food_row = food_database[food_database["food"].str.lower() == food_name.lower()]
+
+            if not food_row.empty:
+                nutrition_data = food_row.iloc[0].to_dict()
+                return nutrition_data
+            else:
+                return None
+        except FileNotFoundError:
+            print(f"The file {database_filepath} was not found.")
+            return None
+        except Exception as e:
+            print(f"An error occurred while accessing the database: {e}")
+            return None
+        
     def show_statistics():
         # Temporarily overlay statistics on the chat
         stats_frame = tk.Frame(chat_frame, bg="white", relief=tk.RAISED, bd=2)
@@ -131,7 +148,7 @@ def start_app():
             add_chat_bubble(image_path, is_user=True, image=image_path)
             try:
                 response = process_image(image_path)
-                add_chat_bubble(f"Processed image:\n{response[:500]}...", is_user=False)
+                add_chat_bubble(response[:500], is_user=False)
             except Exception as e:
                 add_chat_bubble(f"Error processing image: {e}", is_user=False)
 
@@ -143,26 +160,29 @@ def start_app():
             try:
                 request_type = process_prompt_with_llm(user_text, system_messages["CheckReqType"])
                 print(request_type)
+                food_name = process_prompt_with_llm(user_text, system_messages["Extract Food Name"])
+                nutrition_table = extract_from_data_base(food_name)
+                if nutrition_table is not None:
+                    user_text = user_text + "Nutrition Table from data base (Don't use if there are nutrition value before it):" + str(nutrition_table)
+                    print(user_text)
                 response = process_prompt_with_llm(user_text, system_messages["Estimate"])
                 if "SavingDataset" in request_type:
 
                     _ = add_food_from_prompt(response) #Need a little change on yes or no
                     response = "Added the following information to the dataset: "+response
-                if "SavingDaily" in request_type:
-                    food_name = process_prompt_with_llm(user_text, system_messages["Extract Food Name"])
-                    #nutrition_table = extract_from_data_base(food_name)
-                    #For testing
-                    response_test = "nutrition_table = extract_from_data_base(food_name)"
+                # if "SavingDaily" in request_type:
 
-                    #if nutrition_table is not None:
-                    #    user_text = user_text + "Nutrition Table from data base (Don't use if there are nutrition value before it):" + nutrition_table
+                #     #For testing
+                #     # response_test = "nutrition_table = extract_from_data_base(food_name)"
 
-                    response = process_prompt_with_llm(user_text, system_messages["Estimate"])
-                    #response = add_food_to_daily(response)
-                    response = response_test + "nutrition_table = extract_from_data_base(food_name)" + response
+                    
+
+
+                #     response = add_food_to_daily(response)
+                    # response = response_test + "nutrition_table = extract_from_data_base(food_name)" + response
 
                 if response:
-                    add_chat_bubble(f"Processed data:{response}", is_user=False)
+                    add_chat_bubble(response, is_user=False)
                 else:
                     add_chat_bubble("Failed to process the prompt.", is_user=False)
             except Exception as e:
