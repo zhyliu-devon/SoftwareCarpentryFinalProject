@@ -5,7 +5,7 @@ from voice_recog import main as voice_recog_main
 from image_recog import process_image
 from data_handler import add_food_entry
 import pandas as pd
-from llm import process_prompt_with_llm
+from llm import process_prompt_with_llm, system_messages, add_food_from_prompt
 
 
 def start_app():
@@ -141,7 +141,18 @@ def start_app():
         if user_text:
             add_chat_bubble(user_text, is_user=True)
             try:
-                response = process_prompt_with_llm(user_text, system_messages["Estimate"])  # Call the process_prompt_with_llm function
+                request_type = process_prompt_with_llm(user_text, system_messages["CheckReqType"])
+
+                if request_type == "SavingDataset":
+                    response = add_food_from_prompt(response) #Need a little change on yes or no
+                if request_type == "SavingDaily":
+                    food_name = process_prompt_with_llm(user_text, system_messages["Extract Food Name"])
+                    nutrition_table = extract_from_data_base(food_name)
+                    if nutrition_table is not None:
+                        user_text = user_text + "Nutrition Table from data base (Don't use if there are nutrition value before it):" + nutrition_table
+                    response = process_prompt_with_llm(user_text, system_messages["Estimate"])
+                    response = add_food_to_daily(response)
+
                 if response:
                     add_chat_bubble(f"Processed data:{response}", is_user=False)
                 else:

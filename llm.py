@@ -8,15 +8,11 @@ load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 system_messages = {
-    "Extract": (
-        "You are an assistant that extracts structured data from prompts. "
-        "Given a natural language description, output a dictionary with fields: "
-        "'food', 'calories', 'serving_size', 'weight_unit', 'protein', 'fat', 'carbohydrates'. "
-        "Ensure numeric values are properly parsed."
-    ),
     "Estimate": (
         "You are an assistant that extimate structured data from prompts. "
-        "Given a food, estimate its nutrition based on your feeling and output a dictionary with fields: "
+        "Given a food, estimate its nutrition based on your feeling "
+        "Do not estimate if you see value given in the description"
+        "Output a dictionary with fields:"
         "'food', 'calories', 'serving_size', 'weight_unit', 'protein', 'fat', 'carbohydrates'. "
         "Ensure numeric values are properly parsed."
     ),
