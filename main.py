@@ -94,10 +94,13 @@ def start_app():
             else:
                 daily_data = pd.read_csv(daily_data_filepath)
             response = json.loads(response)
+            food_name = response.get("food", "Unknown")
+            if not food_name or food_name.lower() == "unknown":
+                return "Food name is unknown. Entry not saved."
             # Append the new entry
             new_entry = {
                 "date": response.get("date", pd.Timestamp.now().strftime('%Y-%m-%d')),
-                "food": response.get("food", "Unknown"),
+                "food": food_name,
                 "quantity": response.get("quantity", 1),
                 "unit": response.get("unit", "serving"),
                 "calories": response.get("calories", 0),
@@ -128,6 +131,9 @@ def start_app():
             # Filter today's data
             today = pd.Timestamp.now().strftime('%Y-%m-%d')
             data = data[data['date'] == today]
+
+            # Remove rows with 'Unknown' or NaN food entries
+            data = data[data['food'].notna() & (data['food'] != "Unknown")]
 
             if data.empty:
                 tk.Label(stats_frame, text="No data available for today.", font=("Helvetica", 14), fg="red").pack()
