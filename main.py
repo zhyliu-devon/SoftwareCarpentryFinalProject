@@ -125,6 +125,14 @@ def start_app():
             # Load data from the CSV file
             data = pd.read_csv(file_path)
 
+            # Filter today's data
+            today = pd.Timestamp.now().strftime('%Y-%m-%d')
+            data = data[data['date'] == today]
+
+            if data.empty:
+                tk.Label(stats_frame, text="No data available for today.", font=("Helvetica", 14), fg="red").pack()
+                return
+
             # Generate a grouped bar chart
             from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
             import matplotlib.pyplot as plt
@@ -159,7 +167,6 @@ def start_app():
             canvas.get_tk_widget().place(relx=0.5, rely=0.5, anchor='center', width=1200, height=960)
             canvas.draw()
 
-
             # Add a back button
             back_button = tk.Button(stats_frame, text="Back to Chat", font=("Helvetica", 12), command=stats_frame.destroy)
             back_button.place(relx=0.01, rely=0.01, anchor='nw')
@@ -181,12 +188,12 @@ def start_app():
         )
         if image_path:
             add_chat_bubble(image_path, is_user=True, image=image_path)
+            
             try:
                 response = process_image(image_path)
                 add_chat_bubble(response, is_user=False)
-                add_chat_bubble("What do you want to do with this figure?", is_user=False)
-                user_follow_up = text_input.get()
-                handle_text_input(user_follow_up + str(response))
+                
+
             except Exception as e:
                 add_chat_bubble(f"Error processing image: {e}", is_user=False)
 
