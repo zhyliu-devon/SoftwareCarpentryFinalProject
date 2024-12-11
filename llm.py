@@ -9,11 +9,12 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 system_messages = {
     "Estimate": (
-        "You are an assistant that estimates nutritional data based on prompts. "
-        "If the description provides values, do not estimate. "
-        "Output a dictionary with the following fields: "
+        "You are an assistant that extimate structured data from prompts. "
+        "Given a food, estimate its nutrition based on your feeling "
+        "Do not estimate if you see value given in the description"
+        "Output a dictionary with fields:"
         "'food', 'calories', 'serving_size', 'weight_unit', 'protein', 'fat', 'carbohydrates'. "
-        "Ensure all numeric values are properly parsed and formatted."
+        "Ensure numeric values are properly parsed."
     ),
     "CheckReqType": (
         "Identify the user's intent from the following options: "
@@ -57,7 +58,7 @@ def add_food_from_prompt(prompt, filepath="data/food_database.csv"):
     """
     Process natural language prompt, extract data, and add to database.
     """
-    food_data = process_prompt_with_llm(prompt)
+    food_data = process_prompt_with_llm(prompt, system_messages["Estimate"])
     if not food_data:
         print("Failed to process prompt.")
         return

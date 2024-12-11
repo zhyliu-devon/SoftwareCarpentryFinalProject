@@ -142,16 +142,23 @@ def start_app():
             add_chat_bubble(user_text, is_user=True)
             try:
                 request_type = process_prompt_with_llm(user_text, system_messages["CheckReqType"])
+                print(request_type)
+                response = process_prompt_with_llm(user_text, system_messages["Estimate"])
+                if "SavingDataset" in request_type:
 
-                if request_type == "SavingDataset":
                     response = add_food_from_prompt(response) #Need a little change on yes or no
-                if request_type == "SavingDaily":
+                if "SavingDaily" in request_type:
                     food_name = process_prompt_with_llm(user_text, system_messages["Extract Food Name"])
-                    nutrition_table = extract_from_data_base(food_name)
-                    if nutrition_table is not None:
-                        user_text = user_text + "Nutrition Table from data base (Don't use if there are nutrition value before it):" + nutrition_table
+                    #nutrition_table = extract_from_data_base(food_name)
+                    #For testing
+                    response_test = "nutrition_table = extract_from_data_base(food_name)"
+
+                    #if nutrition_table is not None:
+                    #    user_text = user_text + "Nutrition Table from data base (Don't use if there are nutrition value before it):" + nutrition_table
+
                     response = process_prompt_with_llm(user_text, system_messages["Estimate"])
-                    response = add_food_to_daily(response)
+                    #response = add_food_to_daily(response)
+                    response = response_test + "nutrition_table = extract_from_data_base(food_name)" + response
 
                 if response:
                     add_chat_bubble(f"Processed data:{response}", is_user=False)
